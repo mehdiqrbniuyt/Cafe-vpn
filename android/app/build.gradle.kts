@@ -22,8 +22,8 @@ android {
         applicationId = "com.example.cafevpn"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
-        versionCode = flutterVersionCode.toInt()
-        versionName = flutterVersionName
+        versionCode = flutter.versionCode.toInt()
+        versionName = flutter.versionName
     }
 
     buildTypes {
