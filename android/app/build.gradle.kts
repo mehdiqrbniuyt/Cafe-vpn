@@ -37,8 +37,9 @@ android {
     }
 
     packaging {
-        resources.excludes.add("META-INF/versions/9/OSGI-INF/MANIFEST.MF")
-        jniLibs.pickFirsts.add("lib/*/libxray.so")
+        resources {
+            excludes.add("META-INF/versions/9/OSGI-INF/MANIFEST.MF")
+        }
     }
 }
 
