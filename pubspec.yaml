@@ -50,3 +50,7 @@ flutter:
           weight: 600
         - asset: assets/fonts/OpenSans-Bold.ttf
           weight: 700
+          flutter_icons:
+  android: true
+  ios: true
+  image_path: "icon.png"
