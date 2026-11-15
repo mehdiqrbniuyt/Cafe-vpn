@@ -1,31 +1,39 @@
 
-pluginManagement {
-    val flutterSdkPath =
-        run {
-            val properties = java.util.Properties()
-            file("local.properties").inputStream().use {
-                properties.load(it)
-            }
-            val flutterSdkPath = properties.getProperty("flutter.sdk")
-            require(flutterSdkPath != null) {
-                "flutter.sdk not set in local.properties"
-            }
-            flutterSdkPath
-        }
+name: Build APK
 
-    includeBuild("$flutterSdkPath/packages/flutter_tools/gradle")
+on:
+  push:
+    branches: [ main ]
 
-    repositories {
-        google()
-        mavenCentral()
-        gradlePluginPortal()
-    }
-}
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-plugins {
-    id("dev.flutter.flutter-plugin-loader") version "1.0.0"
-    id("com.android.application") version "8.13.2" apply false
-    id("org.jetbrains.kotlin.android") version "2.4.0" apply false
-}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-include(":app")
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: '3.47.9'
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Build APK
+        run: flutter build apk --release --android-skip-build-dependency-validation --verbose
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release
+          path: build/app/outputs/flutter-apk/app-release.apk
