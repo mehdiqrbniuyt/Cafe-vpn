@@ -1,88 +1,51 @@
-import java.util.Properties
-
 plugins {
-    id("com.android.application")
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
-    id("dev.flutter.flutter-gradle-plugin")
-}
-
-val keystoreProperties = Properties().apply {
-    val file = rootProject.file("key.properties")
-    if (file.exists()) file.inputStream().use { load(it) }
+    id "com.android.application"
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
 }
 
 android {
-    namespace = "com.bpb"
-    compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    namespace "com.example.cafevpn"
+    compileSdk flutter.compileSdkVersion
+    ndkVersion flutter.ndkVersion
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
     }
 
     defaultConfig {
-        applicationId = "com.bpb"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = 24
-        targetSdk = flutter.targetSdkVersion
-        // Uses the version code from pubspec.yaml. When using split APKs, 1000 * ABI_VERSION
-        // is added automatically by Flutter. (https://developer.android.com/studio/build/configure-apk-splits#configure-APK-versions)
-        // You can force using the value of versionCode by specifying the -P force-version-code-ignoring-abi=true
-        // flag during build.
-        versionCode = flutter.versionCode
-        versionName = flutter.versionName
-        manifestPlaceholders["applicationLabel"] = "Cafe vpn"
-    }
-
-    signingConfigs {
-        // android/key.properties + android/keystore/release.jks (both git-ignored).
-        if (keystoreProperties.isNotEmpty()) {
-            create("release") {
-                storeFile = file(keystoreProperties.getProperty("storeFile"))
-                storePassword = keystoreProperties.getProperty("storePassword")
-                keyAlias = keystoreProperties.getProperty("keyAlias")
-                keyPassword = keystoreProperties.getProperty("keyPassword")
-            }
-        }
+        applicationId "com.example.cafevpn"
+        minSdkVersion flutter.minSdkVersion
+        targetSdkVersion flutter.targetSdkVersion
+        versionCode flutterVersionCode.toInteger()
+        versionName flutterVersionName
     }
 
     buildTypes {
-        debug {
-            if (project.findProperty("dev") == "true") {
-                applicationIdSuffix = ".dev"
-                manifestPlaceholders["applicationLabel"] = "Cafe vpn Dev"
-            }
-        }
         release {
-            // Falls back to the debug key on machines without key.properties.
-            signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
+            signingConfig signingConfigs.debug
         }
     }
 
-    packaging {
-        jniLibs {
-            // Xray core ships as a large .so; keep it compressed in the APK.
-            useLegacyPackaging = true
-        }
+    lintOptions {
+        checkReleaseBuilds false
     }
-}
 
-dependencies {
-    // Xray core, built from xray/ (scripts/build_xray.sh)
-    implementation(files("libs/xray.aar"))
-    // FileProvider, for sharing exported settings files.
-    implementation("androidx.core:core:1.13.1")
-    testImplementation("junit:junit:4.13.2")
-}
-
-kotlin {
-    compilerOptions {
-        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+    packagingOptions {
+        pickFirst 'lib/*/libxray.so'
+        exclude 'META-INF/versions/9/OSGI-INF/MANIFEST.MF'
     }
 }
 
 flutter {
-    source = "../.."
+    source '../..'
+}
+
+dependencies {
+    implementation files('libs/xray.aar')
 }
